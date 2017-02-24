@@ -1,7 +1,7 @@
 /*************************************************************
 * Author: Jeremy Wood
 * Date: Feb 22, 2017
-* Last Modified: Feb 22, 2017
+* Last Modified: Feb 23, 2017
 *************************************************************/
 
 #include <stdio.h>
@@ -11,7 +11,9 @@
 #include "mpihelp.h"
 #include "ctools.h"
 
-void main(int argsc, char* argsv[]) {
+double initialCondition(double x, double y);
+
+void main() {
 
   /*************************************************************
   * Setup the environment
@@ -24,19 +26,12 @@ void main(int argsc, char* argsv[]) {
   Size(&commSize);
   Rank(&myRank);
 
-  if(commSize % 2 != 0) {
+  if(commSize != 1 && commSize % 2 != 0) {
    printf("comm size must be divisible by 2!\n");
    Abort(1);
   }
 
-  settings_t actualSettings;
-  settings_t* settings = &actualSettings;
-  processArgs(argsc, argsv, settings);
-  if (settings->debug && isMaster(myRank)) {
-    printSettings(settings);
-  }
-
-  if (settings->xyCount % commSize != 0) {
+  if (n % commSize != 0) {
     printf("n must be divisible by comm size!\n");
     Abort(1);
   }
@@ -47,7 +42,7 @@ void main(int argsc, char* argsv[]) {
   */
 
   int myColLength;
-  int myRowLength = myColLength = settings->xyCount / commSize;
+  int myRowLength = myColLength = n / commSize;
 
 
 
@@ -55,4 +50,10 @@ void main(int argsc, char* argsv[]) {
   * Cleanup
   */
   Finalize();
+}
+
+double initialCondition(double x, double y) {
+	double max = (1.0/(2.0*M_PI*sigma*sigma))*exp(-0.5*( ((0.5-mu)/sigma)*((0.5-mu)/sigma) +  ((0.5-mu)/sigma)*((0.5-mu)/sigma)   ));
+	double result = (1.0/(2.0*M_PI*sigma*sigma))*exp(-0.5*( ((x-mu)/sigma)*((x-mu)/sigma) +  ((y-mu)/sigma)*((y-mu)/sigma)   ))/max;
+	return result;
 }

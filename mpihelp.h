@@ -1,7 +1,7 @@
 /*************************************************************
 * Author: Jeremy Wood
 * Date: Feb 22, 2017
-* Last Modified: Feb 22, 2017
+* Last Modified: Feb 23, 2017
 *************************************************************/
 
 #include <mpi.h>
@@ -19,6 +19,12 @@
 #define Finalize() MPI_Finalize()
 
 static int const MASTER = 0; // root proc rank
+
+#ifdef debug
+  #define debugPrintRoot(rank,format,args...) do { if (rank == MASTER) { printf(format, ## args); } } while(0)
+#else
+  #define debugPrintRoot(rank,format,args...)
+#endif
 
 bool_t isMaster(int rank);
 
