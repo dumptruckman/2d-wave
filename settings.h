@@ -4,8 +4,8 @@
 * Last Modified: Feb 23, 2017
 *************************************************************/
 
-#ifndef n
-  #define n 10
+#ifndef N
+  #define N 10
 #endif
 
 #ifndef timeDeltaMultiplier

@@ -10,13 +10,17 @@
 #endif
 
 #ifdef debug
+  #define debugCall(x) do { x; } while(0)
   #define debugPrint(format, args...) do { printf(format, ## args); } while(0)
 #else
+  #define debugCall(x)
   #define debugPrint(format, args...)
 #endif
 
 void printArray(double* array, int length);
 void printlnArray(double* array, int length);
+void printMatrix(double** matrix, int numRows, int numCols);
+void printLnMatrix(double** matrix, int numRows, int numCols);
 
 void printArray(double* array, int length) {
   printf("[");
@@ -25,12 +29,32 @@ void printArray(double* array, int length) {
     if (i != 0) {
       printf("  ");
     }
-    printf("%g", array[i]);
+    printf("%f", array[i]);
   }
   printf("]");
 }
 
 void printlnArray(double* array, int length) {
   printArray(array, length);
+  printf("\n");
+}
+
+void printMatrix(double** matrix, int numRows, int numCols) {
+  printf("[");
+  int i;
+  for (i = 0; i < numRows; i++) {
+    if (i != 0) {
+      printf(" ");
+    }
+    printArray(matrix[i], numCols);
+    if (i != numRows - 1) {
+      printf("\n");
+    }
+  }
+  printf("]");
+}
+
+void printLnMatrix(double** matrix, int numRows, int numCols) {
+  printMatrix(matrix, numRows, numCols);
   printf("\n");
 }
