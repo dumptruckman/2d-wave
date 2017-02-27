@@ -20,6 +20,7 @@
 #define Gather(send, count, recv) MPI_Gather(send, count, MPI_DOUBLE, recv, count, MPI_DOUBLE, MASTER, MPI_COMM_WORLD)
 #define Probe(flag) MPI_Iprobe(MASTER, 0, MPI_COMM_WORLD, flag, MPI_STATUS_IGNORE)
 #define GetCount(status, count) MPI_Get_count(status, MPI_DOUBLE, count);
+#define ReduceMax(elapsed, longest) MPI_Reduce(elapsed, longest, 1, MPI_DOUBLE, MPI_MAX, MASTER, MPI_COMM_WORLD);
 
 double calculateInitialCondition(double x, double y);
 double getInitialInput(int i);
@@ -36,6 +37,7 @@ double*** buffer;
 double* topNeighbor;
 double* bottomNeighbor;
 int myNumRows, myNumCols;
+double startTime, endTime, timeElapsed;
 
 void main() {
 
@@ -62,6 +64,8 @@ void main() {
   /*************************************************************
   * Begin the real task
   */
+
+  startTime = Time();
 
   myNumRows = N / commSize;
   myNumCols = N;
@@ -103,6 +107,15 @@ void main() {
     buffer[1] = buffer[2];
     buffer[2] = swap;
   }
+
+  endTime = Time();
+  timeElapsed = endTime - startTime;
+  double longestElapsedTime;
+  ReduceMax(&timeElapsed, &longestElapsedTime);
+
+  timingCall(if (isMaster(myRank)) {
+    printf("Time elapsed: %g seconds\n", longestElapsedTime);
+  });
 
   outputCall(createAnimation());
 
@@ -150,7 +163,7 @@ void debugAndOutput(int fStep) {
 
 void createAnimation() {
   if (isMaster(myRank)) {
-    printf("Creating animation gif. This will take a while...\n");
+    printf("Creating animation gif. This may take a while...\n");
     Barrier();
     createAnimationGif();
     if (commSize > 1) {

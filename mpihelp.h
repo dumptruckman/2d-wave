@@ -27,6 +27,12 @@ static int const MASTER = 0; // root proc rank
   #define debugPrintRoot(rank,format,args...)
 #endif
 
+#ifdef timing
+  #define timingCall(x) do { x; } while(0)
+#else
+  #define timingCall(x)
+#endif
+
 bool_t isMaster(int rank);
 
 bool_t isMaster(int rank) {
