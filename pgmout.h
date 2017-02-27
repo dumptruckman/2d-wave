@@ -7,10 +7,29 @@
 
 #include <sys/stat.h>
 
+#ifndef bool_t_DEFINED
+  #define bool_t_DEFINED
+  typedef enum { false, true } bool_t;
+#endif
+
+bool_t fileExists(char* fileName) {
+    FILE *fp;
+		fp = fopen(fileName, "r");
+    if (fp) {
+        fclose(fp);
+        return true;
+    }
+    return false;
+}
+
 void cleanupOutput() {
 	int ret; // ignores compiler warning
-	ret = system("exec rm animation.gif");
-	ret = system("exec rm -r ./output/*");
+	if (fileExists("animation.gif")) {
+		ret = system("exec rm animation.gif");
+	}
+	if (fileExists("./output")) {
+		ret = system("exec rm -r ./output/*");
+	}
 }
 
 int writeHeader(int fStep) {
@@ -63,6 +82,8 @@ int writeMatrix(double** matrix, int numRows, int numCols, int fStep) {
 }
 
 void createAnimationGif() {
+	char* command = malloc(90 * sizeof(char));
+	sprintf(command, "exec convert output/outfile*.pgm -resize %s -loop 1 animation.gif", imageSize);
 	int ret; // ignores compiler warning
-	ret = system("exec convert output/outfile*.pgm -resize 400x400 -loop 1 animation.gif");
+	ret = system(command);
 }

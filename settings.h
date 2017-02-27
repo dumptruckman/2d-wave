@@ -56,6 +56,9 @@
     #define gather(x) do { x; } while(0)
   #endif
   #define outputCall(x) do { x; } while(0)
+  #ifndef imageSize
+    #define imageSize "400x400"
+  #endif
 #else
   #ifndef gather
     #define gather(x)
