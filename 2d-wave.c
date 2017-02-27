@@ -18,8 +18,6 @@
 #define Send(send, count, dest, tag) MPI_Send(send, count, MPI_DOUBLE, dest, tag, MPI_COMM_WORLD)
 #define Recv(recv, count, source, tag) MPI_Recv(recv, count, MPI_DOUBLE, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE)
 #define Gather(send, count, recv) MPI_Gather(send, count, MPI_DOUBLE, recv, count, MPI_DOUBLE, MASTER, MPI_COMM_WORLD)
-#define Probe(flag) MPI_Iprobe(MASTER, 0, MPI_COMM_WORLD, flag, MPI_STATUS_IGNORE)
-#define GetCount(status, count) MPI_Get_count(status, MPI_DOUBLE, count);
 #define ReduceMax(elapsed, longest) MPI_Reduce(elapsed, longest, 1, MPI_DOUBLE, MPI_MAX, MASTER, MPI_COMM_WORLD);
 
 double calculateInitialCondition(double x, double y);
@@ -47,11 +45,11 @@ void main() {
   Init(NULL, NULL);
   Size(&commSize);
   Rank(&myRank);
-
-  if(commSize != 1 && commSize % 2 != 0) {
-   printf("comm size must be divisible by 2!\n");
-   Abort(1);
-  }
+  //
+  // if(commSize != 1 && commSize % 2 != 0) {
+  //  printf("comm size must be divisible by N!\n");
+  //  Abort(1);
+  // }
 
   if (N % commSize != 0) {
     printf("N must be divisible by comm size!\n");
@@ -76,6 +74,7 @@ void main() {
   topNeighbor = malloc(myNumCols * sizeof(double));
   bottomNeighbor = malloc(myNumCols * sizeof(double));
 
+  //statusCall(if (isMaster(myRank)) { printf("\n"); });
   int i,j,k;
   for (k = 0; k < 2; k++) {
     for (i = 0; i < myNumRows; i++) {
@@ -83,6 +82,11 @@ void main() {
         buffer[k][i][j] = isBorder(i) ? 0 : calculateInitialCondition(getInitialInput(i + (myRank * myNumRows)), getInitialInput(j));
       }
     }
+    statusCall(
+      if (!gatherEnabled && isMaster(myRank)) {
+        printStatus(k, fEnd);
+      }
+    );
 
     gather(debugAndOutput(k));
   }
@@ -99,6 +103,12 @@ void main() {
       }
     }
 
+    statusCall(
+      if (!gatherEnabled && isMaster(myRank)) {
+        printStatus(k, fEnd);
+      }
+    );
+
     // This might should occur unconditionally.
     gather(debugAndOutput(k));
 
@@ -108,6 +118,8 @@ void main() {
     buffer[2] = swap;
   }
 
+  statusCall(if (isMaster(myRank)) { printf("\n"); });
+
   endTime = Time();
   timeElapsed = endTime - startTime;
   double longestElapsedTime;
@@ -115,6 +127,7 @@ void main() {
 
   timingCall(if (isMaster(myRank)) {
     printf("Time elapsed: %g seconds\n", longestElapsedTime);
+    writeTimingFile("timings.txt", N, fEnd, commSize, longestElapsedTime);
   });
 
   outputCall(createAnimation());
@@ -154,6 +167,7 @@ void debugAndOutput(int fStep) {
       free(combined[i]);
     }
     free(combined);
+    statusCall(printStatus(fStep, fEnd));
   } else {
     for (j = 0; j < myNumRows; j++) {
       Send(buffer[2][j], N, MASTER, fStep);

@@ -49,8 +49,9 @@ int writeHeader(int fStep) {
 	}
 }
 
-int writeRow(double* rawData, int numCols, int fStep) {
+int writeRow(double* rawData, int numCols, int fStep, double max) {
 	char* fileName = malloc(23 * sizeof(char));
+  double scale = 1 / max;
 	sprintf(fileName, "output/outfile%04d.pgm", fStep);
 	FILE *fp;
 	fp = fopen(fileName, "a");
@@ -61,7 +62,8 @@ int writeRow(double* rawData, int numCols, int fStep) {
 	else {
 		int i;
 		for (i=0; i<numCols; i++) {
-			int val = rawData[i]*127+127;
+			int val = rawData[i] * (127 * scale) + 127;
+      val = val > 254 ? 254 : val < 0 ? 0 : val;
 			fprintf(fp,"%d ",val);
 		}
 		fprintf(fp,"\n");
@@ -72,9 +74,17 @@ int writeRow(double* rawData, int numCols, int fStep) {
 }
 
 int writeMatrix(double** matrix, int numRows, int numCols, int fStep) {
-	int i;
+	int i,j;
+  double max = 0;
+  for (i = 0; i < numRows; i++) {
+    for (j = 0; j < numCols; j++) {
+      if (matrix[i][j] > max) {
+        max = matrix[i][j];
+      }
+    }
+  }
 	for (i = 0; i < numRows; i++) {
-		if (writeRow(matrix[i], numCols, fStep) == -1) {
+		if (writeRow(matrix[i], numCols, fStep, max) == -1) {
 			return -1;
 		}
 	}

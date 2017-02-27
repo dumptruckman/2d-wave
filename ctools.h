@@ -71,3 +71,16 @@ void arrayCopy(double *source, double *dest, int length) {
     dest[i] = source[i];
   }
 }
+
+void printStatus(int step, int end) {
+  printf("\r[");
+  int i;
+  end = ((double) step / end) * 100;
+  for (i = 0; i < end; i++) {
+    printf("=");
+  }
+  for (; i < 100; i++) {
+    printf(" ");
+  }
+  printf("]");
+}

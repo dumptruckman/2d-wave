@@ -58,16 +58,16 @@ void waitWithAnimation(int waitingForRank) {
         lastTime = currentTime;
         switch (frame) {
           case 0:
-            printf("\\\r");
+            printf("\r\\");
             break;
           case 1:
-            printf("|\r");
+            printf("\r|");
             break;
           case 2:
-            printf("/\r");
+            printf("\r/");
             break;
           case 3:
-            printf("-\r");
+            printf("\r-");
             break;
         }
         frame++;
@@ -77,4 +77,17 @@ void waitWithAnimation(int waitingForRank) {
       }
     }
   }
+}
+
+int writeTimingFile(char* fileName, int n, int fEndStep, int commSize, double elapsedTime) {
+  FILE *fp;
+	fp = fopen(fileName, "a");
+	if (fp == NULL) {
+		printf("sorry can't open %s.\n", fileName);
+		return -1;
+	}
+  fprintf(fp, "2d-wave\t%d\t%d\t%d\t%g\n", n, fEndStep, commSize, elapsedTime);
+  fflush(fp);
+  fclose(fp);
+  return 0;
 }

@@ -9,22 +9,25 @@
   typedef enum { false, true } bool_t;
 #endif
 
+// Number of permutations
 #ifndef N
-  #define N 20
+  #define N 100
 #endif
 
+// Values greater than 1 speed up the animation
 #ifndef timeDeltaMultiplier
-  #define timeDeltaMultiplier 1
+  #define timeDeltaMultiplier 10
 #endif
 
+// Number of time steps
 #ifndef fEnd
-  #define fEnd 60
+  #define fEnd 100
 #endif
 
 #ifndef sigma
-  //#define sigma 0.01 //tight point
+  #define sigma 0.01 //tight point
   //#define sigma 0.1 //wider point
-  #define sigma 0.05 // in between!
+  //#define sigma 0.05 // in between!
 #endif
 
 #ifndef mu
@@ -34,6 +37,9 @@
 // Uncomment following line to run in debug mode
 //#define debug
 #ifdef debug
+  #ifndef gatherEnabled
+    #define gatherEnabled true
+  #endif
   #ifndef gather
     #define gather(x) do { x; } while(0)
   #else
@@ -49,6 +55,9 @@
 // Uncomment following line to write output to pgm files
 //#define output
 #ifdef output
+  #ifndef gatherEnabled
+    #define gatherEnabled true
+  #endif
   #ifndef gather
     #define gather(x) do { x; } while(0)
   #else
@@ -64,4 +73,16 @@
     #define gather(x)
   #endif
   #define outputCall(x)
+#endif
+
+#ifdef showStatus
+  #ifndef gatherEnabled
+    #define gatherEnabled false
+  #endif
+  #define statusCall(x) do { x; } while(0)
+#else
+  #ifndef gatherEnabled
+    #define gatherEnabled false
+  #endif
+  #define statusCall(x)
 #endif
