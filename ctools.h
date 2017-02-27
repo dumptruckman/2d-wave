@@ -21,6 +21,7 @@ void printArray(double* array, int length);
 void printlnArray(double* array, int length);
 void printMatrix(double** matrix, int numRows, int numCols);
 void printLnMatrix(double** matrix, int numRows, int numCols);
+void arrayCopy(double *source, double *dest, int length);
 
 void printArray(double* array, int length) {
   printf("[");
@@ -29,7 +30,12 @@ void printArray(double* array, int length) {
     if (i != 0) {
       printf("  ");
     }
-    printf("%f", array[i]);
+    if (array[i] >= 0) {
+      printf(" %1.5f", array[i]);
+    } else {
+      printf("%1.5f", array[i]);
+    }
+
   }
   printf("]");
 }
@@ -57,4 +63,11 @@ void printMatrix(double** matrix, int numRows, int numCols) {
 void printLnMatrix(double** matrix, int numRows, int numCols) {
   printMatrix(matrix, numRows, numCols);
   printf("\n");
+}
+
+void arrayCopy(double *source, double *dest, int length) {
+  int i;
+  for (i = 0; i < length; i++) {
+    dest[i] = source[i];
+  }
 }

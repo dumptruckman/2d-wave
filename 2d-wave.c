@@ -11,8 +11,13 @@
 #include "settings.h"
 #include "mpihelp.h"
 #include "ctools.h"
+#include "pgmout.h"
 
+// Define some ease of use "functions"
 #define Sendrecv(send, dest, recv, source, tag, count) MPI_Sendrecv(send, count, MPI_DOUBLE, dest, tag, recv, count, MPI_DOUBLE, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE)
+#define Send(send, count, dest, tag) MPI_Send(send, count, MPI_DOUBLE, dest, tag, MPI_COMM_WORLD)
+#define Recv(recv, count, source, tag) MPI_Recv(recv, count, MPI_DOUBLE, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE)
+#define Gather(send, count, recv) MPI_Gather(send, count, MPI_DOUBLE, recv, count, MPI_DOUBLE, MASTER, MPI_COMM_WORLD)
 
 double calculateInitialCondition(double x, double y);
 double getInitialInput(int i);
@@ -26,6 +31,9 @@ double*** buffer;
 double* topNeighbor;
 double* bottomNeighbor;
 int myNumRows, myNumCols;
+
+double** allocateMatrix(int numRows, int numCols);
+void debugAndOutput(int fStep);
 
 void main() {
 
@@ -45,6 +53,7 @@ void main() {
     printf("N must be divisible by comm size!\n");
     Abort(1);
   }
+
   Barrier();
 
   /*************************************************************
@@ -67,8 +76,8 @@ void main() {
         buffer[k][i][j] = calculateInitialCondition(getInitialInput(i), getInitialInput(j));
       }
     }
-    debugCall(printLnMatrix(buffer[k], myNumRows, myNumCols));
-    debugCall(printf("\n"));
+
+    gather(debugAndOutput(k));
   }
 
   int topNeighborRank = myRank == 0 ? MPI_PROC_NULL : myRank - 1;
@@ -82,8 +91,9 @@ void main() {
         buffer[2][i][j] = isBorder(i) ? 0 : f(i, j);
       }
     }
-    debugCall(printLnMatrix(buffer[2], myNumRows, myNumCols));
-    debugCall(printf("\n"));
+
+    gather(debugAndOutput(k));
+
     swap = buffer[0];
     buffer[0] = buffer[1];
     buffer[1] = buffer[2];
@@ -94,6 +104,42 @@ void main() {
   * Cleanup
   */
   Finalize();
+}
+
+void debugAndOutput(int fStep) {
+  int i,j;
+  double** combined;
+  if (isMaster(myRank)) {
+    combined = allocateMatrix(N, N);
+    for (i = 0; i < myNumRows; i++) {
+      arrayCopy(buffer[2][i], combined[i], N);
+    }
+    for (j = 1; j < commSize; j++) {
+      for (i = 0; i < myNumRows; i++) {
+        Recv(combined[j * myNumRows + i], N, j, fStep);
+      }
+    }
+    debugCall(printLnMatrix(combined, N, N));
+    debugCall(printf("\n"));
+    outputCall(
+      if (writeHeader(fStep) == -1) {
+        Abort(1);
+      }
+    );
+    outputCall(
+      if (writeMatrix(buffer[fStep >= 2 ? 2 : fStep], N, N, fStep) == -1) {
+        Abort(1);
+      }
+    );
+    for (i = 0; i < N; i++) {
+      free(combined[i]);
+    }
+    free(combined);
+  } else {
+    for (j = 0; j < myNumRows; j++) {
+      Send(buffer[2][j], N, MASTER, fStep);
+    }
+  }
 }
 
 double f(int y_j, int x_i) {
@@ -127,12 +173,16 @@ double*** allocateBufferMemory(int numRows, int numCols) {
   double*** result = malloc(3 * sizeof(double**));
   int k;
   for (k = 0; k < 3; k++) {
-    double** matrix = malloc(numRows * sizeof(double*));
-    result[k] = matrix;
-    int i, j;
-    for (i = 0; i < numRows; i++) {
-      matrix[i] = calloc(numCols, sizeof(double));
-    }
+    result[k] = allocateMatrix(numRows, numCols);
   }
   return result;
+}
+
+double** allocateMatrix(int numRows, int numCols) {
+  double** matrix = malloc(numRows * sizeof(double*));
+  int i;
+  for (i = 0; i < numRows; i++) {
+    matrix[i] = calloc(numCols, sizeof(double));
+  }
+  return matrix;
 }
