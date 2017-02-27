@@ -74,9 +74,9 @@ void main() {
 
   int i,j,k;
   for (k = 0; k < 2; k++) {
-    for (i = 1; i < myNumRows - 1; i++) {
+    for (i = 0; i < myNumRows; i++) {
       for (j = 1; j < myNumCols - 1; j++) {
-        buffer[k][i][j] = calculateInitialCondition(getInitialInput(i), getInitialInput(j));
+        buffer[k][i][j] = isBorder(i) ? 0 : calculateInitialCondition(getInitialInput(i + (myRank * myNumRows)), getInitialInput(j));
       }
     }
 
