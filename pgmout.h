@@ -7,6 +7,12 @@
 
 #include <sys/stat.h>
 
+void cleanupOutput() {
+	int ret; // ignores compiler warning
+	ret = system("exec rm animation.gif");
+	ret = system("exec rm -r ./output/*");
+}
+
 int writeHeader(int fStep) {
 	mkdir("output", 0777);
 	char* fileName = malloc(23 * sizeof(char));
@@ -54,4 +60,9 @@ int writeMatrix(double** matrix, int numRows, int numCols, int fStep) {
 		}
 	}
 	return 0;
+}
+
+void createAnimationGif() {
+	int ret; // ignores compiler warning
+	ret = system("exec convert output/outfile*.pgm -resize 400x400 -loop 1 animation.gif");
 }

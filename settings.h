@@ -10,7 +10,7 @@
 #endif
 
 #ifndef N
-  #define N 10
+  #define N 20
 #endif
 
 #ifndef timeDeltaMultiplier
@@ -18,12 +18,13 @@
 #endif
 
 #ifndef fEnd
-  #define fEnd 2
+  #define fEnd 60
 #endif
 
 #ifndef sigma
   //#define sigma 0.01 //tight point
-  #define sigma 0.1 //wider point
+  //#define sigma 0.1 //wider point
+  #define sigma 0.05 // in between!
 #endif
 
 #ifndef mu

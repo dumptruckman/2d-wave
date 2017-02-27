@@ -18,12 +18,17 @@
 #define Send(send, count, dest, tag) MPI_Send(send, count, MPI_DOUBLE, dest, tag, MPI_COMM_WORLD)
 #define Recv(recv, count, source, tag) MPI_Recv(recv, count, MPI_DOUBLE, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE)
 #define Gather(send, count, recv) MPI_Gather(send, count, MPI_DOUBLE, recv, count, MPI_DOUBLE, MASTER, MPI_COMM_WORLD)
+#define Probe(flag) MPI_Iprobe(MASTER, 0, MPI_COMM_WORLD, flag, MPI_STATUS_IGNORE)
+#define GetCount(status, count) MPI_Get_count(status, MPI_DOUBLE, count);
 
 double calculateInitialCondition(double x, double y);
 double getInitialInput(int i);
 double*** allocateBufferMemory(int numRows, int numCols);
 double f(int y_j, int x_i);
 bool_t isBorder(int i);
+double** allocateMatrix(int numRows, int numCols);
+void debugAndOutput(int fStep);
+void createAnimation();
 
 int myRank, commSize;
 
@@ -31,9 +36,6 @@ double*** buffer;
 double* topNeighbor;
 double* bottomNeighbor;
 int myNumRows, myNumCols;
-
-double** allocateMatrix(int numRows, int numCols);
-void debugAndOutput(int fStep);
 
 void main() {
 
@@ -54,6 +56,7 @@ void main() {
     Abort(1);
   }
 
+  outputCall(if (isMaster(myRank)) { cleanupOutput(); });
   Barrier();
 
   /*************************************************************
@@ -92,6 +95,7 @@ void main() {
       }
     }
 
+    // This might should occur unconditionally.
     gather(debugAndOutput(k));
 
     swap = buffer[0];
@@ -99,6 +103,8 @@ void main() {
     buffer[1] = buffer[2];
     buffer[2] = swap;
   }
+
+  outputCall(createAnimation());
 
   /*************************************************************
   * Cleanup
@@ -127,7 +133,7 @@ void debugAndOutput(int fStep) {
       }
     );
     outputCall(
-      if (writeMatrix(buffer[fStep >= 2 ? 2 : fStep], N, N, fStep) == -1) {
+      if (writeMatrix(combined, N, N, fStep) == -1) {
         Abort(1);
       }
     );
@@ -138,6 +144,22 @@ void debugAndOutput(int fStep) {
   } else {
     for (j = 0; j < myNumRows; j++) {
       Send(buffer[2][j], N, MASTER, fStep);
+    }
+  }
+}
+
+void createAnimation() {
+  if (isMaster(myRank)) {
+    printf("Creating animation gif. This will take a while...\n");
+    Barrier();
+    createAnimationGif();
+    if (commSize > 1) {
+      taskComplete(1);
+    }
+  } else {
+    Barrier();
+    if (myRank == 1) {
+      waitWithAnimation(MASTER);
     }
   }
 }

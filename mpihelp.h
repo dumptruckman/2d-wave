@@ -17,6 +17,7 @@
 #define Size(x) MPI_Comm_size(MPI_COMM_WORLD, x)
 #define Barrier() MPI_Barrier(MPI_COMM_WORLD)
 #define Finalize() MPI_Finalize()
+#define Time() MPI_Wtime()
 
 static int const MASTER = 0; // root proc rank
 
@@ -30,4 +31,44 @@ bool_t isMaster(int rank);
 
 bool_t isMaster(int rank) {
   return rank == MASTER;
+}
+
+char _notifyProxy;
+void taskComplete(int notifyRank) {
+  MPI_Send(&_notifyProxy, 1, MPI_CHAR, notifyRank, 0, MPI_COMM_WORLD);
+}
+
+void waitWithAnimation(int waitingForRank) {
+  double lastTime = Time();
+  char frame = 0;
+  int waiting = 0;
+  while (waiting == 0) {
+    MPI_Iprobe(waitingForRank, 0, MPI_COMM_WORLD, &waiting, MPI_STATUS_IGNORE);
+    if (waiting != 0) {
+      MPI_Recv(&_notifyProxy, 1, MPI_CHAR, MASTER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    } else {
+      double currentTime = Time();
+      if (currentTime - lastTime > 1) {
+        lastTime = currentTime;
+        switch (frame) {
+          case 0:
+            printf("\\\r");
+            break;
+          case 1:
+            printf("|\r");
+            break;
+          case 2:
+            printf("/\r");
+            break;
+          case 3:
+            printf("-\r");
+            break;
+        }
+        frame++;
+        if (frame > 3) {
+          frame = 0;
+        }
+      }
+    }
+  }
 }
