@@ -73,6 +73,9 @@
     #define gather(x)
   #endif
   #define outputCall(x)
+  #ifndef imageSize
+    #define imageSize "400x400"
+  #endif
 #endif
 
 #ifdef showStatus
