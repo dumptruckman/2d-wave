@@ -3,3 +3,6 @@
 output
 *.gif
 *.pgm
+
+timings.txt
+timings.txt~

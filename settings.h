@@ -1,7 +1,7 @@
 /*************************************************************
 * Author: Jeremy Wood
 * Date: Feb 22, 2017
-* Last Modified: Feb 23, 2017
+* Last Modified: Mar 1, 2017
 *************************************************************/
 
 #ifndef bool_t_DEFINED
@@ -11,7 +11,7 @@
 
 // Number of permutations
 #ifndef N
-  #define N 100
+  #define N 600
 #endif
 
 // Values greater than 1 speed up the animation
@@ -21,7 +21,7 @@
 
 // Number of time steps
 #ifndef fEnd
-  #define fEnd 100
+  #define fEnd 600
 #endif
 
 #ifndef sigma

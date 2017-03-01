@@ -1,7 +1,7 @@
 /*************************************************************
 * Author: Jeremy Wood
 * Date: Feb 22, 2017
-* Last Modified: Feb 23, 2017
+* Last Modified: Mar 1, 2017
 *************************************************************/
 
 #include <mpi.h>
@@ -9,6 +9,10 @@
 #ifndef bool_t_DEFINED
   #define bool_t_DEFINED
   typedef enum { false, true } bool_t;
+#endif
+
+#ifndef optimizationLevel
+  #define optimizationLevel "O?"
 #endif
 
 #define Init(x, y) MPI_Init(x, y)
@@ -86,7 +90,7 @@ int writeTimingFile(char* fileName, int n, int fEndStep, int commSize, double el
 		printf("sorry can't open %s.\n", fileName);
 		return -1;
 	}
-  fprintf(fp, "2d-wave\t%d\t%d\t%d\t%g\n", n, fEndStep, commSize, elapsedTime);
+  fprintf(fp, "2d-wave\t%s\t%d\t%d\t%d\t%g\n", optimizationLevel, n, fEndStep, commSize, elapsedTime);
   fflush(fp);
   fclose(fp);
   return 0;
