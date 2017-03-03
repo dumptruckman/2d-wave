@@ -97,7 +97,7 @@ int myNumRows, myNumCols;
 double startTime, endTime, timeElapsed;
 
 
-void main() {
+int main() {
 
   /*************************************************************
   * Setup the environment
@@ -227,6 +227,8 @@ void main() {
   * Cleanup
   */
   Finalize();
+
+  return 0;
 }
 
 void debugAndOutput(int fStep) {
