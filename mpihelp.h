@@ -55,6 +55,7 @@ void waitWithAnimation(int waitingForRank) {
   while (waiting == 0) {
     MPI_Iprobe(waitingForRank, 0, MPI_COMM_WORLD, &waiting, MPI_STATUS_IGNORE);
     if (waiting != 0) {
+      printf("\r");
       MPI_Recv(&_notifyProxy, 1, MPI_CHAR, MASTER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     } else {
       double currentTime = Time();
