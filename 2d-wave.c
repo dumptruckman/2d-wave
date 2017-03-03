@@ -232,12 +232,13 @@ int main() {
 }
 
 void debugAndOutput(int fStep) {
-  int i,j;
+  int i,j,k;
+  k = fStep > 2 ? 2 : fStep;
   double** combined;
   if (isMaster(myRank)) {
     combined = allocateMatrix(N, N);
     for (i = 0; i < myNumRows; i++) {
-      arrayCopy(buffer[2][i], combined[i], N);
+      arrayCopy(buffer[k][i], combined[i], N);
     }
     for (j = 1; j < commSize; j++) {
       for (i = 0; i < myNumRows; i++) {
@@ -263,7 +264,7 @@ void debugAndOutput(int fStep) {
     statusCall(printStatus(fStep, fEnd));
   } else {
     for (j = 0; j < myNumRows; j++) {
-      Send(buffer[2][j], N, MASTER, fStep);
+      Send(buffer[k][j], N, MASTER, fStep);
     }
   }
 }
