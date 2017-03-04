@@ -75,6 +75,7 @@ void waitWithAnimation(int waitingForRank) {
             printf("\r-");
             break;
         }
+        fflush(stdout);
         frame++;
         if (frame > 3) {
           frame = 0;
