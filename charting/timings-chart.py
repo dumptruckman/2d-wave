@@ -22,11 +22,17 @@ plt.legend([noOptLine, o1Line, o2Line, o3Line], ["No Optimization", "O1", "O2", 
 plt.xticks([4, 8, 16, 32, 64])
 plt.yticks([2, 3, 4, 6, 8, 10, 13, 16, 19, 23, 27, 31, 36])
 plt.xlabel("# of Processes")
-plt.ylabel("Elapsed Time in seconds")
+plt.ylabel("Elapsed time in seconds")
 plt.title("Effects of Compiler Optimization")
 plt.show()
 
 nTiming = timingsData[timingsData["N"] != 3840]
+nTiming.sort(order="N")
 
 plt.plot(nTiming["N"], nTiming["elapsedTime"])
+plt.xticks([640, 2560, 5120, 10240, 20480, 30720, 40960], rotation="vertical")
+plt.xlabel("N value")
+plt.yticks([3, 13, 54, 126, 276])
+plt.ylabel("Elapsed time in seconds")
+plt.title("Large N Values on 128 Cores")
 plt.show()
