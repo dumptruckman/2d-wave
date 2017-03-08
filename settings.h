@@ -16,12 +16,12 @@
 
 // Values greater than 1 speed up the animation
 #ifndef timeDeltaMultiplier
-  #define timeDeltaMultiplier 10
+  #define timeDeltaMultiplier 1
 #endif
 
 // Number of time steps
 #ifndef fEnd
-  #define fEnd 600
+  #define fEnd 200
 #endif
 
 #ifndef sigma
