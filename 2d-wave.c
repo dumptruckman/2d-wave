@@ -3,7 +3,7 @@
 * Date: Feb 22, 2017
 * Last Modified: Mar 1, 2017
 *
-* Compiler options:
+* Compiler options (alternately edit settings.h):
 *   -DN=x                   The number of permutations to calculate.
 *                             (i.e. Matrix of size NxN)
 *                             Must be positive integer evenly divisible by comm
